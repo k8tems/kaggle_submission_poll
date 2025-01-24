@@ -34,6 +34,5 @@ if __name__ == '__main__':
             if sub.status != 'pending':
                 print(f'submission => {sub.status} sub.date={sub.date} elapsed={elapsed}')
                 db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
-                break
 
         time.sleep(60)
