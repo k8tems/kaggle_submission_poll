@@ -33,8 +33,7 @@ if __name__ == '__main__':
         subs = api.competition_submissions('czii-cryo-et-object-identification')
         sub = subs[0]
         # TODO: ここ汚い
-        elapsed = datetime.now(tz=pytz.timezone('Asia/Tokyo')) - init_date.replace(
-            tzinfo=pytz.timezone('Asia/Tokyo')) - timedelta(hours=9)
+        elapsed = datetime.utcnow() - init_date
         print(f'{sub.date}[elapsed={elapsed}]')
         if sub.status == 'complete':
             print(f'submission complete! sub.date={sub.date} elapsed={elapsed}')
