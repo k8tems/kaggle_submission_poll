@@ -11,7 +11,6 @@ def fmt_dt(dt):
 if __name__ == '__main__':
     api = KaggleApi()
     api.authenticate()
-    # TODO: maybe add all sumissions that aren't in the database in the future?
 
     db = TinyDB('db.json')
 
@@ -19,7 +18,7 @@ if __name__ == '__main__':
         subs = api.competition_submissions('czii-cryo-et-object-identification')
 
         for sub in subs:
-            if sub.status == 'pending' and not db.search(Query().url == sub.url):
+            if not db.search(Query().url == sub.url):
                 print(f'adding new entry {sub.url}')
                 db.insert(
                     {'url': sub.url, 'status': sub.status, 'date': fmt_dt(sub.date), 'description': sub.description})
