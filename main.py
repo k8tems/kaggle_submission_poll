@@ -35,8 +35,8 @@ if __name__ == '__main__':
         # TODO: ここ汚い
         elapsed = datetime.utcnow() - init_date
         print(f'{sub.date}[elapsed={elapsed}]')
-        if sub.status == 'complete':
-            print(f'submission complete! sub.date={sub.date} elapsed={elapsed}')
+        if sub.status != 'pending':
+            print(f'submission => {sub.status} sub.date={sub.date} elapsed={elapsed}')
             db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
             break
         time.sleep(60)
