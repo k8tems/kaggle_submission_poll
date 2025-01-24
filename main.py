@@ -39,7 +39,7 @@ if __name__ == '__main__':
             # sub.dateが申請した時間で固定されてる前提の実装
             # 終了後、終了時間に変わるなら練り直しが必要
             elapsed = datetime.utcnow() - sub.date
-            print(f'{sub.date}[elapsed={elapsed}]')
+            print(f'{sub.date} [elapsed={elapsed}] "{sub.description}" ')
             if sub.status != 'pending':
                 print(f'submission => {sub.status} sub.date={sub.date} elapsed={elapsed}')
                 db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
