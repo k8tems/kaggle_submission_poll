@@ -24,7 +24,6 @@ if __name__ == '__main__':
                     {'url': sub.url, 'status': sub.status, 'date': fmt_dt(sub.date), 'description': sub.description})
 
         for sub in api.competition_submissions('czii-cryo-et-object-identification'):
-            # 上の処理でpendingとしてdbに記録されてる奴のみ処理する
             if not db.search((Query().url == sub.url) & (Query().status == 'pending')):
                 continue
 
