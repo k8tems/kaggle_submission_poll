@@ -20,6 +20,8 @@ if __name__ == '__main__':
     api.authenticate()
     pending = get_pending_subs(api)
 
+    # TODO: maybe add all sumissions that aren't in the database in the future?
+
     # とりあえず一個
     sub = pending[0]
     init_date = sub.date
