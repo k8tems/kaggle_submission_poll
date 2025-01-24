@@ -40,7 +40,7 @@ if __name__ == '__main__':
             print(f'submission complete! sub.date={sub.date} elapsed={elapsed}')
             db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
             break
-        time.sleep(3)
+        time.sleep(10)
 
     with open('elapsed.pickle', 'wb') as f:
         pickle.dump(elapsed, f)
