@@ -1,6 +1,5 @@
-from tinydb import TinyDB, Query
 import time
-import pickle
+from tinydb import TinyDB, Query
 from kaggle.api.kaggle_api_extended import KaggleApi
 from datetime import datetime
 
@@ -45,6 +44,3 @@ if __name__ == '__main__':
                 db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
                 break
         time.sleep(60)
-
-    with open('elapsed.pickle', 'wb') as f:
-        pickle.dump(elapsed, f)
