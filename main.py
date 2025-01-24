@@ -32,7 +32,6 @@ if __name__ == '__main__':
     while 1:
         subs = api.competition_submissions('czii-cryo-et-object-identification')
         sub = subs[0]
-        # TODO: ここ汚い
         elapsed = datetime.utcnow() - init_date
         print(f'{sub.date}[elapsed={elapsed}]')
         if sub.status != 'pending':
