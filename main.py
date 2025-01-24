@@ -19,13 +19,13 @@ if __name__ == '__main__':
 
         for sub in subs:
             if not db.search(Query().url == sub.url):
-                print(f'adding new entry {sub.url}')
+                print(f'adding new entry {sub.description}')
                 db.insert(
                     {'url': sub.url, 'status': sub.status, 'date': fmt_dt(sub.date), 'description': sub.description})
 
         for sub in api.competition_submissions('czii-cryo-et-object-identification'):
             # 上の処理でpendingとしてdbに記録されてる奴のみ処理する
-            if not db.search(Query().url == sub.url):
+            if not db.search((Query().url == sub.url) & (Query().status == 'pending')):
                 continue
 
             # sub.dateが申請した時間で固定されてる前提の実装
