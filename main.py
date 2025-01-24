@@ -8,11 +8,6 @@ def fmt_dt(dt):
     return dt.strftime('%Y-%m-%d-%H-%M-%S')
 
 
-def get_pending_subs(api):
-    submissions = api.competition_submissions('czii-cryo-et-object-identification')
-    return list(filter(lambda x: x.status == 'pending', submissions))
-
-
 if __name__ == '__main__':
     api = KaggleApi()
     api.authenticate()
