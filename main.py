@@ -23,7 +23,6 @@ if __name__ == '__main__':
                 db.insert(
                     {'url': sub.url, 'status': sub.status, 'date': fmt_dt(sub.date), 'description': sub.description})
 
-        for sub in subs:
             if not db.search((Query().url == sub.url) & (Query().status == 'pending')):
                 continue
 
