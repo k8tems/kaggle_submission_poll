@@ -1,3 +1,4 @@
+import sys
 import time
 from tinydb import TinyDB, Query
 from kaggle.api.kaggle_api_extended import KaggleApi
@@ -11,11 +12,12 @@ def fmt_dt(dt):
 if __name__ == '__main__':
     api = KaggleApi()
     api.authenticate()
+    competition_name = sys.argv[1]
 
-    db = TinyDB('db.json')
+    db = TinyDB(competition_name)
 
     while 1:
-        subs = api.competition_submissions('czii-cryo-et-object-identification')
+        subs = api.competition_submissions(competition_name)
 
         for sub in subs:
             if not db.search(Query().url == sub.url):
