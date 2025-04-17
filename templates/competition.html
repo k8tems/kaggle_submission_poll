@@ -20,12 +20,14 @@
             </thead>
             <tbody>
                 {% for submission in submissions %}
+                    {% set display_status = 'ERROR' if submission.status == 'COMPLETE' and not submission.public_score else submission.status %}
                     <tr>
                         <td>{{ submission.date }}</td>
                         <td>{{ submission.description }}</td>
                         <td>
-                            <span class="badge {% if submission.status == 'COMPLETE' %}bg-success{% elif submission.status == 'PENDING' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                {{ submission.status }}
+                            <span class="badge {% if display_status == 'COMPLETE' %}bg-success{% elif display_status == 'PENDING' %}bg-warning{% elif display_status == 'ERROR' %}bg-danger{% else %}bg-secondary{% endif %}"
+                                  {% if display_status == 'ERROR' %}data-bs-toggle="tooltip" title="Submission failed - No public score available"{% endif %}>
+                                {{ display_status }}
                             </span>
                         </td>
                         <td>{{ submission.public_score if submission.public_score else '-' }}</td>
@@ -35,6 +37,14 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
 {% else %}
     <div class="alert alert-info">
         No submissions found for this competition.
