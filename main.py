@@ -22,8 +22,13 @@ if __name__ == '__main__':
         for sub in subs:
             if not db.search(Query().url == sub.url):
                 print(f'adding new entry {sub.description}')
-                db.insert(
-                    {'url': sub.url, 'status': sub.status.name, 'date': fmt_dt(sub.date), 'description': sub.description})
+                db.insert({
+                    'url': sub.url,
+                    'status': sub.status.name,
+                    'date': fmt_dt(sub.date),
+                    'description': sub.description,
+                    'public_score': sub.public_score
+                })
 
             if not db.search((Query().url == sub.url) & (Query().status == 'PENDING')):
                 continue
@@ -34,6 +39,10 @@ if __name__ == '__main__':
             print(f'{sub.date} [elapsed={elapsed}] "{sub.description}" ')
             if sub.status != 'pending':
                 print(f'submission => {sub.status.name} publicScore={sub.public_score} sub.date={sub.date} elapsed={elapsed}')
-                db.update({'status': sub.status.name, 'duration': elapsed.seconds}, Query().url == sub.url)
+                db.update({
+                    'status': sub.status.name,
+                    'duration': elapsed.seconds,
+                    'public_score': sub.public_score if hasattr(sub, 'public_score') else None
+                }, Query().url == sub.url)
 
         time.sleep(60)
