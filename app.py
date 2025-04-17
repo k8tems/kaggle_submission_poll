@@ -39,9 +39,13 @@ def competition(competition_name):
         if submission['url'] and not submission['url'].startswith('http'):
             submission['url'] = f"https://www.kaggle.com{submission['url']}"
     
+    # Create competition submissions page URL
+    submissions_page_url = f"https://www.kaggle.com/competitions/{competition_name}/submissions"
+    
     return render_template('competition.html', 
                          competition_name=competition_name,
-                         submissions=submissions)
+                         submissions=submissions,
+                         submissions_page_url=submissions_page_url)
 
 if __name__ == '__main__':
     app.run(debug=True) 
