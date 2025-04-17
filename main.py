@@ -14,7 +14,7 @@ if __name__ == '__main__':
     api.authenticate()
     competition_name = sys.argv[1]
 
-    db = TinyDB(competition_name)
+    db = TinyDB(f'db/{competition_name}.json')
 
     while 1:
         subs = api.competition_submissions(competition_name)
