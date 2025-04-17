@@ -25,7 +25,7 @@ if __name__ == '__main__':
                 db.insert(
                     {'url': sub.url, 'status': sub.status.name, 'date': fmt_dt(sub.date), 'description': sub.description})
 
-            if not db.search((Query().url == sub.url) & (Query().status == 'pending')):
+            if not db.search((Query().url == sub.url) & (Query().status == 'PENDING')):
                 continue
 
             # sub.dateが申請した時間で固定されてる前提の実装
@@ -33,7 +33,7 @@ if __name__ == '__main__':
             elapsed = datetime.utcnow() - sub.date
             print(f'{sub.date} [elapsed={elapsed}] "{sub.description}" ')
             if sub.status != 'pending':
-                print(f'submission => {sub.status} publicScore={sub.publicScore} sub.date={sub.date} elapsed={elapsed}')
-                db.update({'status': sub.status, 'duration': elapsed.seconds}, Query().url == sub.url)
+                print(f'submission => {sub.status.name} publicScore={sub.public_score} sub.date={sub.date} elapsed={elapsed}')
+                db.update({'status': sub.status.name, 'duration': elapsed.seconds}, Query().url == sub.url)
 
         time.sleep(60)
