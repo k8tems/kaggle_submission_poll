@@ -35,6 +35,9 @@ def competition(competition_name):
     
     for submission in submissions:
         submission['formatted_duration'] = format_duration(submission.get('duration'))
+        # Make URL absolute by adding Kaggle base URL if it's not already absolute
+        if submission['url'] and not submission['url'].startswith('http'):
+            submission['url'] = f"https://www.kaggle.com{submission['url']}"
     
     return render_template('competition.html', 
                          competition_name=competition_name,

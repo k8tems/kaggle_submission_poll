@@ -23,7 +23,7 @@
                     {% set display_status = 'ERROR' if submission.status == 'COMPLETE' and not submission.public_score else submission.status %}
                     <tr>
                         <td>{{ submission.date }}</td>
-                        <td>{{ submission.description }}</td>
+                        <td><a href="{{ submission.url }}" target="_blank" class="text-decoration-none">{{ submission.description }}</a></td>
                         <td>
                             <span class="badge {% if display_status == 'COMPLETE' %}bg-success{% elif display_status == 'PENDING' %}bg-warning{% elif display_status == 'ERROR' %}bg-danger{% else %}bg-secondary{% endif %}"
                                   {% if display_status == 'ERROR' %}data-bs-toggle="tooltip" title="Submission failed - No public score available"{% endif %}>
