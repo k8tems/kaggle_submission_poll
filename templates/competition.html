@@ -43,7 +43,7 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary edit-notes" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#notesModal"
-                                    data-submission-url="{{ submission.url }}"
+                                    data-doc-id="{{ submission.doc_id }}"
                                     data-submission-desc="{{ submission.description }}"
                                     data-notes="{{ submission.notes if submission.notes else '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -58,7 +58,6 @@
         </table>
     </div>
 
-    <!-- Single Notes Modal -->
     <div class="modal fade" id="notesModal" tabindex="-1" aria-labelledby="notesModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -84,33 +83,24 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tooltips
             var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
-            // Get the modal element
             const modal = document.getElementById('notesModal');
             const notesModal = new bootstrap.Modal(modal);
 
-            // Handle modal opening
             document.querySelectorAll('.edit-notes').forEach(button => {
                 button.addEventListener('click', function() {
-                    const submissionUrl = this.getAttribute('data-submission-url');
+                    const docId = this.getAttribute('data-doc-id');
                     const submissionDesc = this.getAttribute('data-submission-desc');
                     const notes = this.getAttribute('data-notes');
-                    
-                    // Update modal content
-                    document.querySelector('#submissionDescription').textContent = 'Notes for submission: ' + submissionDesc;
                     document.querySelector('#notesText').value = notes;
-                    
-                    // Store the submission URL in the modal for later use
-                    modal.setAttribute('data-submission-url', submissionUrl);
+                    modal.setAttribute('data-doc-id', docId);
                 });
             });
 
-            // Handle notes saving
             document.getElementById('saveNotes').addEventListener('click', function() {
-                const submissionUrl = modal.getAttribute('data-submission-url');
+                const docId = modal.getAttribute('data-doc-id');
                 const notes = document.querySelector('#notesText').value;
                 
                 fetch('/save_notes', {
@@ -120,15 +110,14 @@
                     },
                     body: JSON.stringify({
                         competition_name: '{{ competition_name }}',
-                        submission_url: submissionUrl,
+                        doc_id: docId,
                         notes: notes
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the data attribute on the button for this submission
-                        const button = document.querySelector(`.edit-notes[data-submission-url="${submissionUrl}"]`);
+                        const button = document.querySelector(`.edit-notes[data-doc-id="${docId}"]`);
                         if (button) {
                             button.setAttribute('data-notes', notes);
                         }

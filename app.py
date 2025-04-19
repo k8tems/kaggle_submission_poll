@@ -36,10 +36,20 @@ def index():
     competitions = [os.path.splitext(os.path.basename(f))[0] for f in db_files]
     return render_template('index.html', competitions=competitions)
 
+def add_doc_ids_to_documents(table):
+    """
+    Adds the internal doc_id to each document as a 'doc_id' field.
+    Skips documents that already have the field.
+    """
+    for doc in table:
+        doc['doc_id'] = doc.doc_id
+
 @app.route('/competition/<competition_name>')
 def competition(competition_name):
     db = TinyDB(f'db/{competition_name}.json')
     submissions = db.all()
+    add_doc_ids_to_documents(db)  # Note: passing db instead of submissions
+    submissions = db.all()  # Get fresh copy after modification
     submissions.sort(key=lambda x: x['date'], reverse=True)
     
     for submission in submissions:
@@ -61,16 +71,15 @@ def competition(competition_name):
 def save_notes():
     data = request.get_json()
     competition_name = data.get('competition_name')
-    submission_url = data.get('submission_url')
+    doc_id = data.get('doc_id')
     notes = data.get('notes')
 
-    if not all([competition_name, submission_url]):
+    if not all([competition_name, doc_id]):
         return jsonify({'success': False, 'error': 'Missing required fields'})
 
     try:
         db = TinyDB(f'db/{competition_name}.json')
-        Submission = Query()
-        db.update({'notes': notes}, Submission.url == submission_url)
+        db.update({'notes': notes}, doc_ids=[int(doc_id)])
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
