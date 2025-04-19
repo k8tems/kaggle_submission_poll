@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from tinydb import TinyDB
+from flask import Flask, render_template, request, jsonify
+from tinydb import TinyDB, Query
 import os
 import glob
 from datetime import datetime
@@ -56,6 +56,24 @@ def competition(competition_name):
                          competition_name=competition_name,
                          submissions=submissions,
                          submissions_page_url=submissions_page_url)
+
+@app.route('/save_notes', methods=['POST'])
+def save_notes():
+    data = request.get_json()
+    competition_name = data.get('competition_name')
+    submission_url = data.get('submission_url')
+    notes = data.get('notes')
+
+    if not all([competition_name, submission_url]):
+        return jsonify({'success': False, 'error': 'Missing required fields'})
+
+    try:
+        db = TinyDB(f'db/{competition_name}.json')
+        Submission = Query()
+        db.update({'notes': notes}, Submission.url == submission_url)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True) 

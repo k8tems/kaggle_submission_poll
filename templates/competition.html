@@ -22,6 +22,7 @@
                     <th>Status</th>
                     <th>Public Score</th>
                     <th>Duration</th>
+                    <th>Notes</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,18 +39,110 @@
                         </td>
                         <td>{{ submission.public_score if submission.public_score else '-' }}</td>
                         <td>{{ submission.formatted_duration }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-notes" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#notesModal"
+                                    data-submission-url="{{ submission.url }}"
+                                    data-submission-desc="{{ submission.description }}"
+                                    data-notes="{{ submission.notes if submission.notes else '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                </svg>
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
+    <!-- Single Notes Modal -->
+    <div class="modal fade" id="notesModal" tabindex="-1" aria-labelledby="notesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notesModalLabel">Edit Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="notesForm">
+                        <div class="mb-3">
+                            <label for="submissionDescription" class="form-label fw-bold"></label>
+                            <textarea class="form-control" id="notesText" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveNotes">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            // Get the modal element
+            const modal = document.getElementById('notesModal');
+            const notesModal = new bootstrap.Modal(modal);
+
+            // Handle modal opening
+            document.querySelectorAll('.edit-notes').forEach(button => {
+                button.addEventListener('click', function() {
+                    const submissionUrl = this.getAttribute('data-submission-url');
+                    const submissionDesc = this.getAttribute('data-submission-desc');
+                    const notes = this.getAttribute('data-notes');
+                    
+                    // Update modal content
+                    document.querySelector('#submissionDescription').textContent = 'Notes for submission: ' + submissionDesc;
+                    document.querySelector('#notesText').value = notes;
+                    
+                    // Store the submission URL in the modal for later use
+                    modal.setAttribute('data-submission-url', submissionUrl);
+                });
+            });
+
+            // Handle notes saving
+            document.getElementById('saveNotes').addEventListener('click', function() {
+                const submissionUrl = modal.getAttribute('data-submission-url');
+                const notes = document.querySelector('#notesText').value;
+                
+                fetch('/save_notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        competition_name: '{{ competition_name }}',
+                        submission_url: submissionUrl,
+                        notes: notes
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the data attribute on the button for this submission
+                        const button = document.querySelector(`.edit-notes[data-submission-url="${submissionUrl}"]`);
+                        if (button) {
+                            button.setAttribute('data-notes', notes);
+                        }
+                        notesModal.hide();
+                    } else {
+                        alert('Failed to save notes: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to save notes. Please try again.');
+                });
+            });
+        });
     </script>
 {% else %}
     <div class="alert alert-info">
