@@ -43,7 +43,12 @@
                                 </svg>
                             </button>
                         </td>
-                        <td><a href="{{ submission.url }}" target="_blank" class="text-decoration-none">{{ submission.description }}</a></td>
+                        <td>
+                            <a href="{{ submission.url }}" target="_blank" class="text-decoration-none">{{ submission.description }}</a>
+                            {% if submission.notes %}
+                            <div class="small text-muted mt-1 notes-preview">{{ submission.notes|truncate(50, true) }}</div>
+                            {% endif %}
+                        </td>
                         <td>
                             <span class="badge {% if display_status == 'COMPLETE' %}bg-success{% elif display_status == 'PENDING' %}bg-warning{% elif display_status == 'ERROR' %}bg-danger{% else %}bg-secondary{% endif %}"
                                   {% if display_status == 'ERROR' %}data-bs-toggle="tooltip" title="Submission failed - No public score available"{% endif %}>
@@ -120,6 +125,8 @@
                         const button = document.querySelector(`.edit-notes[data-doc-id="${docId}"]`);
                         if (button) {
                             button.setAttribute('data-notes', notes);
+                            // Refresh the page to show the updated notes
+                            location.reload();
                         }
                         notesModal.hide();
                     } else {
