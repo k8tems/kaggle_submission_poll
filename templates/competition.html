@@ -47,7 +47,7 @@
                         <td>
                             <a href="{{ submission.url }}" target="_blank" class="text-decoration-none">{{ submission.description }}</a>
                             {% if submission.notes %}
-                            <div class="small text-muted mt-1 notes-preview">{{ submission.notes|truncate(50, true) }}</div>
+                            <div class="small text-muted mt-1 notes-preview">{{ submission.notes|truncate(80, true) }}</div>
                             {% endif %}
                         </td>
                         <td>
