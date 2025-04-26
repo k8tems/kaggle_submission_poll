@@ -84,5 +84,26 @@ def save_notes():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/save_cv_score', methods=['POST'])
+def save_cv_score():
+    data = request.get_json()
+    competition_name = data.get('competition_name')
+    doc_id = data.get('doc_id')
+    cv_score = data.get('cv_score')
+    cv_description = data.get('cv_description')
+
+    if not all([competition_name, doc_id]):
+        return jsonify({'success': False, 'error': 'Missing required fields'})
+
+    try:
+        db = TinyDB(f'db/{competition_name}.json')
+        db.update({
+            'cv_score': cv_score,
+            'cv_description': cv_description
+        }, doc_ids=[int(doc_id)])
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 if __name__ == '__main__':
     app.run(debug=True) 

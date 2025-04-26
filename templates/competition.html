@@ -22,6 +22,7 @@
                     <th>Description</th>
                     <th>Status</th>
                     <th>Public Score</th>
+                    <th>CV</th>
                     <th>Duration</th>
                 </tr>
             </thead>
@@ -56,6 +57,24 @@
                             </span>
                         </td>
                         <td>{{ submission.public_score if submission.public_score else '-' }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-cv-score me-2" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#cvModal"
+                                        data-doc-id="{{ submission.doc_id }}"
+                                        data-submission-desc="{{ submission.description }}"
+                                        data-cv-score="{{ submission.cv_score if submission.cv_score else '' }}"
+                                        data-cv-description="{{ submission.cv_description if submission.cv_description else '' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                    </svg>
+                                </button>
+                                <span {% if submission.cv_description %}data-bs-toggle="tooltip" data-bs-placement="top" title="{{ submission.cv_description }}"{% endif %}>
+                                    {{ submission.cv_score if submission.cv_score else '-' }}
+                                </span>
+                            </div>
+                        </td>
                         <td>{{ submission.formatted_duration }}</td>
                     </tr>
                 {% endfor %}
@@ -86,8 +105,37 @@
         </div>
     </div>
 
+    <!-- CV Score Modal -->
+    <div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cvModalLabel">Edit CV Score</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="cvForm">
+                        <div class="mb-3">
+                            <label for="cvScoreInput" class="form-label">CV Score</label>
+                            <input type="text" class="form-control" id="cvScoreInput">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cvDescriptionInput" class="form-label">CV Description</label>
+                            <textarea class="form-control" id="cvDescriptionInput" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCvScore">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all tooltips on the page
             var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
@@ -136,6 +184,89 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Failed to save notes. Please try again.');
+                });
+            });
+
+            // CV Score Modal Functionality
+            const cvModal = document.getElementById('cvModal');
+            const cvModalInstance = new bootstrap.Modal(cvModal);
+
+            document.querySelectorAll('.edit-cv-score').forEach(button => {
+                button.addEventListener('click', function() {
+                    const docId = this.getAttribute('data-doc-id');
+                    const submissionDesc = this.getAttribute('data-submission-desc');
+                    const cvScore = this.getAttribute('data-cv-score');
+                    const cvDescription = this.getAttribute('data-cv-description');
+                    
+                    document.querySelector('#cvScoreInput').value = cvScore;
+                    document.querySelector('#cvDescriptionInput').value = cvDescription;
+                    cvModal.setAttribute('data-doc-id', docId);
+                });
+            });
+
+            document.getElementById('saveCvScore').addEventListener('click', function() {
+                const docId = cvModal.getAttribute('data-doc-id');
+                const cvScore = document.querySelector('#cvScoreInput').value;
+                const cvDescription = document.querySelector('#cvDescriptionInput').value;
+                
+                fetch('/save_cv_score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        competition_name: '{{ competition_name }}',
+                        doc_id: docId,
+                        cv_score: cvScore,
+                        cv_description: cvDescription
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const button = document.querySelector(`.edit-cv-score[data-doc-id="${docId}"]`);
+                        if (button) {
+                            // Find the score display element (sibling to the button)
+                            const scoreElement = button.nextElementSibling;
+                            
+                            // Update attributes
+                            button.setAttribute('data-cv-score', cvScore);
+                            button.setAttribute('data-cv-description', cvDescription);
+                            
+                            // Update the displayed score
+                            scoreElement.textContent = cvScore || '-';
+                            
+                            // Update tooltip
+                            if (cvDescription) {
+                                scoreElement.setAttribute('data-bs-toggle', 'tooltip');
+                                scoreElement.setAttribute('data-bs-placement', 'top');
+                                scoreElement.setAttribute('title', cvDescription);
+                                
+                                // Dispose existing tooltip and create a new one
+                                const tooltip = bootstrap.Tooltip.getInstance(scoreElement);
+                                if (tooltip) {
+                                    tooltip.dispose();
+                                }
+                                new bootstrap.Tooltip(scoreElement);
+                            } else {
+                                scoreElement.removeAttribute('data-bs-toggle');
+                                scoreElement.removeAttribute('title');
+                                
+                                // Dispose existing tooltip if it exists
+                                const tooltip = bootstrap.Tooltip.getInstance(scoreElement);
+                                if (tooltip) {
+                                    tooltip.dispose();
+                                }
+                            }
+                        }
+                        cvModalInstance.hide();
+                    } else {
+                        alert('Failed to save CV score: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to save CV score. Please try again.');
                 });
             });
         });
