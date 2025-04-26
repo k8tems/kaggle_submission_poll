@@ -21,8 +21,8 @@
                     <th></th>
                     <th>Description</th>
                     <th>Status</th>
-                    <th>Public Score</th>
                     <th>CV</th>
+                    <th>Public LB</th>
                     <th>Duration</th>
                 </tr>
             </thead>
@@ -56,7 +56,6 @@
                                 {{ display_status }}
                             </span>
                         </td>
-                        <td>{{ submission.public_score if submission.public_score else '-' }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <button type="button" class="btn btn-sm btn-outline-primary edit-cv-score me-2" 
@@ -75,6 +74,7 @@
                                 </span>
                             </div>
                         </td>
+                        <td>{{ submission.public_score if submission.public_score else '-' }}</td>
                         <td>{{ submission.formatted_duration }}</td>
                     </tr>
                 {% endfor %}
