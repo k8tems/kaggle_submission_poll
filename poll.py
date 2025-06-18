@@ -27,7 +27,8 @@ if __name__ == '__main__':
                     'status': sub.status.name,
                     'date': fmt_dt(sub.date),
                     'description': sub.description,
-                    'public_score': sub.public_score
+                    'private_score': sub.private_score,
+                    'public_score': sub.public_score,
                 })
 
             if not db.search((Query().url == sub.url) & (Query().status == 'PENDING')):
@@ -39,10 +40,12 @@ if __name__ == '__main__':
             print(f'{sub.date} [elapsed={elapsed}] "{sub.description}" ')
             if sub.status != 'pending':
                 print(f'submission => {sub.status.name} publicScore={sub.public_score} sub.date={sub.date} elapsed={elapsed}')
+                import pdb; pdb.set_trace()
                 db.update({
                     'status': sub.status.name,
                     'duration': elapsed.seconds,
-                    'public_score': sub.public_score if hasattr(sub, 'public_score') else None
+                    'private_score': sub.private_score if hasattr(sub, 'public_score') else None,
+                    'public_score': sub.public_score if hasattr(sub, 'public_score') else None,
                 }, Query().url == sub.url)
 
         time.sleep(60)
