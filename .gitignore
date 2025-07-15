@@ -4,3 +4,4 @@ __pycache__
 elapsed.pickle
 db.json
 db/
+kernel/
