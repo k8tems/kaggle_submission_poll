@@ -40,7 +40,6 @@ if __name__ == '__main__':
             print(f'{sub.date} [elapsed={elapsed}] "{sub.description}" ')
             if sub.status != 'pending':
                 print(f'submission => {sub.status.name} publicScore={sub.public_score} sub.date={sub.date} elapsed={elapsed}')
-                import pdb; pdb.set_trace()
                 db.update({
                     'status': sub.status.name,
                     'duration': elapsed.seconds,
